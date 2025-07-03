@@ -1,8 +1,11 @@
+/* app/temika/page.tsx */
+import TemikaClientWrapper from "@/components/temika/client-wrapper"
+
+export const metadata = {
+  title: "Temika Assistant",
+  description: "AI assistant for Web3 Sentinel",
+}
+
 export default function TemikaPage() {
-  return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold">Temika</h1>
-      <p className="text-gray-400 mt-2">AI-powered assistant for blockchain security</p>
-    </div>
-  )
+  return <TemikaClientWrapper />
 }

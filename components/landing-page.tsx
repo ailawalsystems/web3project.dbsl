@@ -5,6 +5,7 @@ import { motion, useAnimation, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Shield,
   Code,
@@ -18,11 +19,11 @@ import {
   Menu,
   X,
   MessageSquare,
-  AlertTriangle,
-  FileText,
+  Users,
+  ArrowRight,
+  Twitter,
 } from "lucide-react"
 import { useMobile } from "@/hooks/use-mobile"
-import { Footer } from "@/components/footer"
 
 export function LandingPage() {
   const [loaded, setLoaded] = useState(false)
@@ -32,6 +33,7 @@ export function LandingPage() {
   const isMobile = useMobile()
   const controls = useAnimation()
   const backgroundRef = useRef<HTMLDivElement>(null)
+  const [isVisible, setIsVisible] = useState(false)
 
   // Handle mouse movement for background effect
   useEffect(() => {
@@ -59,6 +61,10 @@ export function LandingPage() {
 
     sequence()
   }, [controls])
+
+  useEffect(() => {
+    setIsVisible(true)
+  }, [])
 
   const navigateTo = (path: string) => {
     setMenuOpen(false)
@@ -155,75 +161,41 @@ export function LandingPage() {
           )}
         </AnimatePresence>
 
+        {/* Hero Section */}
+        <div className="container mx-auto px-4 py-20">
+          <div
+            className={`text-center transition-all duration-1000 ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
+          >
+            <div className="flex justify-center mb-8">
+              <div className="p-4 rounded-full bg-emerald-500/20 border border-emerald-500/30">
+                <Shield className="h-16 w-16 text-emerald-400" />
+              </div>
+            </div>
+
+            <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
+              Web3 Sentinel
+            </h1>
+
+            <p className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
+              AI-Powered DeFi Exploit Hunter - Multi-Agent Security System for Blockchain Protection
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button asChild size="lg" className="bg-emerald-600 hover:bg-emerald-700">
+                <Link href="/dashboard">
+                  Launch Dashboard
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="lg" className="border-gray-600 hover:bg-gray-800 bg-transparent">
+                <Link href="/about">Learn More</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+
         {/* Main content */}
         <main className="container mx-auto px-4 pt-32 pb-20">
-          <div className="flex flex-col items-center justify-center min-h-[70vh]">
-            {/* Animated logo entrance */}
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={loaded ? { scale: 1, opacity: 1 } : {}}
-              transition={{ duration: 1, delay: 0.2, ease: [0.23, 1, 0.32, 1] }}
-              className="mb-8"
-            >
-              <Shield className="h-24 w-24 md:h-32 md:w-32 text-emerald-500" />
-            </motion.div>
-
-            {/* Animated text entrance */}
-            <div className="overflow-hidden mb-6">
-              <motion.h1
-                initial={{ y: 100 }}
-                animate={loaded ? { y: 0 } : {}}
-                transition={{ duration: 0.8, delay: 0.5, ease: [0.23, 1, 0.32, 1] }}
-                className="text-5xl md:text-7xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-blue-500"
-              >
-                Web3 Security
-              </motion.h1>
-            </div>
-
-            <div className="overflow-hidden mb-8">
-              <motion.h2
-                initial={{ y: 100 }}
-                animate={loaded ? { y: 0 } : {}}
-                transition={{ duration: 0.8, delay: 0.7, ease: [0.23, 1, 0.32, 1] }}
-                className="text-xl md:text-2xl text-center text-gray-400"
-              >
-                Multi-Agent System
-              </motion.h2>
-            </div>
-
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={loaded ? { opacity: 1 } : {}}
-              transition={{ duration: 1.5, delay: 1 }}
-              className="text-lg md:text-xl text-center text-gray-300 max-w-2xl mb-12"
-            >
-              A comprehensive platform for blockchain and DeFi security analysis, threat detection, and mitigation
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={loaded ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, delay: 1.2 }}
-              className="flex flex-wrap justify-center gap-4"
-            >
-              <Link href="/dashboard">
-                <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white">
-                  Launch Dashboard
-                </Button>
-              </Link>
-              <Link href="https://github.com/your-username/web3-security-agents" target="_blank">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-emerald-500 text-emerald-500 hover:bg-emerald-950"
-                >
-                  <Github className="mr-2 h-5 w-5" />
-                  GitHub Repository
-                </Button>
-              </Link>
-            </motion.div>
-          </div>
-
           {/* Agents section */}
           <motion.section
             initial={{ opacity: 0, y: 40 }}
@@ -262,36 +234,78 @@ export function LandingPage() {
             </div>
           </motion.section>
 
-          {/* Features section */}
-          <motion.section
-            initial={{ opacity: 0, y: 40 }}
-            animate={loaded ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.8, delay: 1.8 }}
-            className="mt-20 md:mt-32"
-          >
-            <h2 className="text-3xl font-bold text-center mb-12 text-emerald-400">Key Features</h2>
+          {/* Features Section */}
+          <div className="container mx-auto px-4 py-20">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {features.map((feature, index) => (
-                <motion.div
-                  key={feature.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={loaded ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 0.5, delay: 1.8 + index * 0.1 }}
-                  className="bg-gray-900 bg-opacity-50 backdrop-blur-sm rounded-xl p-6 border border-gray-800"
-                >
-                  <div className="flex items-center justify-center h-12 w-12 rounded-full bg-emerald-900/50 text-emerald-400 mb-4">
-                    {feature.icon}
+              <Card className="bg-gray-800/50 border-gray-700">
+                <CardHeader>
+                  <div className="p-2 rounded-lg bg-emerald-500/20 w-fit">
+                    <Zap className="h-6 w-6 text-emerald-400" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-2 text-white">{feature.title}</h3>
-                  <p className="text-gray-400">{feature.description}</p>
-                </motion.div>
-              ))}
+                  <CardTitle>Real-time Monitoring</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription>
+                    Continuous monitoring of blockchain networks and DeFi protocols for security threats and
+                    vulnerabilities.
+                  </CardDescription>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gray-800/50 border-gray-700">
+                <CardHeader>
+                  <div className="p-2 rounded-lg bg-blue-500/20 w-fit">
+                    <Users className="h-6 w-6 text-blue-400" />
+                  </div>
+                  <CardTitle>Multi-Agent System</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription>
+                    Coordinated AI agents working together to analyze, research, and mitigate security risks across
+                    Web3.
+                  </CardDescription>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-gray-800/50 border-gray-700">
+                <CardHeader>
+                  <div className="p-2 rounded-lg bg-purple-500/20 w-fit">
+                    <Shield className="h-6 w-6 text-purple-400" />
+                  </div>
+                  <CardTitle>Automated Response</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription>
+                    Intelligent automation for threat detection, analysis, and response with comprehensive reporting.
+                  </CardDescription>
+                </CardContent>
+              </Card>
             </div>
-          </motion.section>
+          </div>
         </main>
 
         {/* Footer */}
-        <Footer />
+        <footer className="border-t border-gray-800 py-12">
+          <div className="container mx-auto px-4">
+            <div className="flex flex-col md:flex-row justify-between items-center">
+              <div className="flex items-center space-x-2 mb-4 md:mb-0">
+                <Shield className="h-6 w-6 text-emerald-400" />
+                <span className="text-xl font-bold">Web3 Sentinel</span>
+              </div>
+              <div className="flex space-x-4">
+                <Button variant="ghost" size="sm">
+                  <Github className="h-5 w-5" />
+                </Button>
+                <Button variant="ghost" size="sm">
+                  <Twitter className="h-5 w-5" />
+                </Button>
+              </div>
+            </div>
+            <div className="text-center text-gray-400 mt-8">
+              <p>&copy; 2024 Web3 Sentinel. All rights reserved.</p>
+            </div>
+          </div>
+        </footer>
       </motion.div>
 
       {/* Floating AI Chat Button */}
@@ -367,7 +381,7 @@ const agents = [
   {
     name: "LLM Assistant",
     description: "Provides security consultation and manages other agents",
-    icon: <Brain className="h-6 w-6" />,
+    icon: <Shield className="h-6 w-6" />,
     path: "/agents/llm",
   },
   {
@@ -411,23 +425,5 @@ const agents = [
     description: "Manages repository and publishes findings online",
     icon: <Github className="h-6 w-6" />,
     path: "/agents/github",
-  },
-]
-
-const features = [
-  {
-    title: "Real-time Threat Detection",
-    description: "Continuously monitor the blockchain ecosystem for emerging security threats and vulnerabilities.",
-    icon: <AlertTriangle className="h-6 w-6" />,
-  },
-  {
-    title: "Comprehensive Analysis",
-    description: "Perform in-depth technical analysis of exploits, vulnerabilities, and attack vectors.",
-    icon: <FileSearch className="h-6 w-6" />,
-  },
-  {
-    title: "Automated Reporting",
-    description: "Generate detailed security reports and publish findings to GitHub Pages automatically.",
-    icon: <FileText className="h-6 w-6" />,
   },
 ]

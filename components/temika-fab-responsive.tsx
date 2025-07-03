@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { motion, AnimatePresence } from "framer-motion"
-import { Sparkles, MessageSquare } from "lucide-react"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { MessageCircle, X } from "lucide-react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
 
 export function TemikaFAB() {
   const router = useRouter()
@@ -46,11 +46,6 @@ export function TemikaFAB() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [lastScrollY])
 
-  // Navigate to Temika page
-  const handleClick = () => {
-    router.push("/temika")
-  }
-
   // Initial attention-grabbing pulse animation
   useEffect(() => {
     let resetTimer: NodeJS.Timeout
@@ -81,61 +76,28 @@ export function TemikaFAB() {
     }
   }, [])
 
-  const fabButton = (
-    <motion.button
-      className={`fixed z-50 flex items-center justify-center rounded-full bg-emerald-600 text-white shadow-lg hover:bg-emerald-700 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-gray-900 ${
-        isMobile ? "bottom-4 right-4" : "bottom-6 right-6"
-      }`}
-      initial={{ scale: 0, opacity: 0 }}
-      animate={{
-        scale: 1,
-        opacity: 1,
-        boxShadow:
-          isHovered || isPulsing
-            ? "0 0 0 4px rgba(16, 185, 129, 0.3)"
-            : "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-      }}
-      exit={{ scale: 0, opacity: 0 }}
-      transition={{ type: "spring", stiffness: 300, damping: 25 }}
-      onClick={handleClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      aria-label="Open Temika AI Assistant"
-    >
-      <div className={`relative ${isMobile ? "p-2" : "p-3"}`}>
-        {isMobile ? <MessageSquare className="h-5 w-5" /> : <Sparkles className="h-6 w-6" />}
-
-        {/* Ripple effect */}
-        <AnimatePresence>
-          {(isHovered || isPulsing) && (
-            <motion.span
-              className="absolute inset-0 rounded-full border-2 border-emerald-400"
-              initial={{ opacity: 1, scale: 1 }}
-              animate={{ opacity: 0, scale: 1.5 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 1, repeat: isPulsing ? 1 : 0 }}
-            />
-          )}
-        </AnimatePresence>
-      </div>
-    </motion.button>
-  )
+  if (!isVisible) return null
 
   return (
-    <AnimatePresence>
-      {isVisible &&
-        (isMobile ? (
-          fabButton
-        ) : (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>{fabButton}</TooltipTrigger>
-              <TooltipContent side="left" className="bg-gray-800 text-white border-gray-700">
-                <p>Chat with Temika AI</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        ))}
-    </AnimatePresence>
+    <div className="fixed bottom-6 right-6 z-50">
+      <div className="relative">
+        <Button asChild size="lg" className="rounded-full bg-emerald-600 hover:bg-emerald-700 shadow-lg h-14 w-14 p-0">
+          <Link href="/temika">
+            <MessageCircle className="h-6 w-6" />
+            <span className="sr-only">Open Temika AI Assistant</span>
+          </Link>
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          className="absolute -top-2 -right-2 rounded-full bg-gray-800 hover:bg-gray-700 h-6 w-6 p-0"
+          onClick={() => setIsVisible(false)}
+        >
+          <X className="h-3 w-3" />
+          <span className="sr-only">Hide assistant</span>
+        </Button>
+      </div>
+    </div>
   )
 }
