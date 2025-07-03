@@ -6,9 +6,14 @@ import { architectAgent, runArchitectAgent } from "./architect-agent"
 import { toolsmithAgent, runToolsmithAgent } from "./toolsmith-agent"
 import { coderAgent, runCoderAgent } from "./coder-agent"
 import { githubAgent, runGithubAgent } from "./github-agent"
+
 import type { Agent, AgentTask, AgentType } from "./agent-types"
 
-export const agents = {
+/* ------------------------------------------------------------------ */
+/*  Aggregated maps for convenience                                   */
+/* ------------------------------------------------------------------ */
+
+export const agents: Record<AgentType, Agent> = {
   llm: llmAgent,
   scraper: scraperAgent,
   analyzer: analyzerAgent,
@@ -19,7 +24,7 @@ export const agents = {
   github: githubAgent,
 }
 
-export const agentRunners = {
+export const agentRunners: Record<AgentType, (task: AgentTask) => Promise<AgentTask>> = {
   llm: runLlmAgent,
   scraper: runScraperAgent,
   analyzer: runAnalyzerAgent,
@@ -30,24 +35,30 @@ export const agentRunners = {
   github: runGithubAgent,
 }
 
-export async function runAgent(agentType: AgentType, task: AgentTask): Promise<AgentTask> {
-  const runner = agentRunners[agentType]
-  if (!runner) {
-    throw new Error(`No runner found for agent type: ${agentType}`)
-  }
-  return runner(task)
-}
+/* ------------------------------------------------------------------ */
+/*  Public helpers                                                    */
+/* ------------------------------------------------------------------ */
 
+/** Returns the static metadata for the requested agent */
 export function getAgent(agentType: AgentType): Agent {
   const agent = agents[agentType]
   if (!agent) {
-    throw new Error(`No agent found for type: ${agentType}`)
+    throw new Error(`No agent found for type "${agentType}"`)
   }
   return agent
 }
 
-export function getAllAgents(): Agent[] {
-  return Object.values(agents)
+/**
+ * Executes a task with the requested agent.
+ * NOTE: this stub instantly completes; real logic belongs in each agent runner.
+ */
+export async function runAgent(agentType: AgentType, task: AgentTask): Promise<AgentTask> {
+  const runner = agentRunners[agentType]
+  if (!runner) {
+    throw new Error(`No runner found for agent type "${agentType}"`)
+  }
+  return runner(task)
 }
 
+/* Re-export foundational types */
 export * from "./agent-types"

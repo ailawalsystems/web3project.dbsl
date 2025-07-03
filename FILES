@@ -1,0 +1,217 @@
+// lib/agents/agent-types.ts
+/* Generic type declarations for all agents */
+export interface AgentTask {
+  id: string
+  name: string
+  status: "pending" | "running" | "done" | "error"
+  createdAt: Date
+}
+
+export interface AgentResult {
+  taskId: string
+  output: unknown
+  completedAt: Date
+}
+
+// lib/agents/llm-agent.ts
+export async function runLLMAgent(prompt: string): Promise<string> {
+  // TODO: hook up Google AI Studio / Groq here
+  return `LLM agent stubbed response to: ${prompt}`
+}
+
+// lib/agents/scraper-agent.ts
+export async function runScraperAgent(url: string): Promise<string[]> {
+  // TODO: integrate Crawl4AI
+  console.info("Scraping (stub):", url)
+  return []
+}
+
+// lib/agents/analyzer-agent.ts
+export async function runAnalyzerAgent(data: unknown): Promise<string> {
+  // TODO: real vulnerability analysis
+  return "Analyzer agent stub – no vulnerabilities found"
+}
+
+// lib/agents/researcher-agent.ts
+export async function runResearcherAgent(topic: string): Promise<string> {
+  // TODO: query knowledge bases
+  return `Research notes for ${topic} (stub)`
+}
+
+// lib/agents/architect-agent.ts
+export async function runArchitectAgent(issue: string): Promise<string> {
+  return `Mitigation strategy for ${issue} (stub)`
+}
+
+// lib/agents/toolsmith-agent.ts
+export async function runToolsmithAgent(toolName: string): Promise<string> {
+  return `Toolsmith evaluated ${toolName} (stub)`
+}
+
+// lib/agents/coder-agent.ts
+export async function runCoderAgent(spec: string): Promise<string> {
+  return `Generated code for ${spec} (stub)`
+}
+
+// lib/agents/github-agent.ts
+export async function runGitHubAgent(action: string): Promise<string> {
+  return `GitHub agent performed ${action} (stub)`
+}
+
+// lib/agents/index.ts
+export * from "./llm-agent"
+export * from "./scraper-agent"
+export * from "./analyzer-agent"
+export * from "./researcher-agent"
+export * from "./architect-agent"
+export * from "./toolsmith-agent"
+export * from "./coder-agent"
+export * from "./github-agent"
+
+// hooks/use-mobile.tsx
+"use client"
+import { useEffect, useState } from "react"
+
+export function useMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < breakpoint)
+    handler()
+    window.addEventListener("resize", handler)
+    return () => window.removeEventListener("resize", handler)
+  }, [breakpoint])
+
+  return isMobile
+}
+
+// components/page-layout.tsx
+import { ReactNode } from "react"
+import { DashboardHeader } from "@/components/dashboard/dashboard-header"
+
+export default function PageLayout({ children }: { children: ReactNode }) {
+  return (
+    <div className="min-h-screen flex flex-col bg-gray-950 text-gray-100">
+      <DashboardHeader />
+      <main className="flex-1 pt-14">{children}</main>
+    </div>
+  )
+}
+
+// components/breadcrumb.tsx
+"use client"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+
+export function Breadcrumb() {
+  const pathname = usePathname()
+  const parts = pathname.split("/").filter(Boolean)
+
+  return (
+    <nav className="text-sm text-gray-400 mb-4">
+      <Link href="/">Home</Link>
+      {parts.map((part, idx) => {
+        const href = "/" + parts.slice(0, idx + 1).join("/")
+        return (
+          <span key={href}>
+            {" / "}
+            <Link href={href} className="capitalize hover:text-white">
+              {part.replace(/-/g, " ")}
+            </Link>
+          </span>
+        )
+      })}
+    </nav>
+  )
+}
+
+// components/page-layout-with-breadcrumbs.tsx
+import { ReactNode } from "react"
+import PageLayout from "@/components/page-layout"
+import { Breadcrumb } from "@/components/breadcrumb"
+
+export function PageLayoutWithBreadcrumbs({ children }: { children: ReactNode }) {
+  return (
+    <PageLayout>
+      <div className="container mx-auto px-4">
+        <Breadcrumb />
+        {children}
+      </div>
+    </PageLayout>
+  )
+}
+
+// components/footer.tsx
+export function Footer() {
+  return (
+    <footer className="py-8 text-center text-sm text-gray-500 border-t border-gray-800">
+      © {new Date().getFullYear()} Web3 Sentinel. All rights reserved.
+    </footer>
+  )
+}
+
+// app/api/agents/route.ts
+export async function GET() {
+  return Response.json({ message: "Agents endpoint (stub)" })
+}
+
+// app/api/threats/route.ts
+export async function GET() {
+  return Response.json({ data: [], message: "Threats endpoint (stub)" })
+}
+
+// app/api/reports/route.ts
+export async function GET() {
+  return Response.json({ reports: [], message: "Reports endpoint (stub)" })
+}
+
+// app/api/tools/route.ts
+export async function GET() {
+  return Response.json({ tools: [], message: "Tools endpoint (stub)" })
+}
+
+// Generic layout stub (used by MANY routes)
+
+/// file: app/layouts/simple-layout.tsx
+import { ReactNode } from "react"
+import { PageLayoutWithBreadcrumbs } from "@/components/page-layout-with-breadcrumbs"
+
+export default function SimpleLayout({ children }: { children: ReactNode }) {
+  return <PageLayoutWithBreadcrumbs>{children}</PageLayoutWithBreadcrumbs>
+}
+
+// Replace every placeholder layout with ~3-line re-export
+
+/* app/agents/architect/layout.tsx */
+export { default } from "@/app/layouts/simple-layout"
+
+/* app/agents/toolsmith/layout.tsx */
+export { default } from "@/app/layouts/simple-layout"
+
+/* app/agents/github/layout.tsx */
+export { default } from "@/app/layouts/simple-layout"
+
+/* app/agents/analyzer/layout.tsx */
+export { default } from "@/app/layouts/simple-layout"
+
+/* app/agents/scraper/layout.tsx */
+export { default } from "@/app/layouts/simple-layout"
+
+/* app/agents/researcher/layout.tsx */
+export { default } from "@/app/layouts/simple-layout"
+
+/* app/dashboard/layout.tsx */
+export { default } from "@/app/layouts/simple-layout"
+
+/* app/explore/layout.tsx */
+export { default } from "@/app/layouts/simple-layout"
+
+/* app/create/layout.tsx */
+export { default } from "@/app/layouts/simple-layout"
+
+/* app/bots/layout.tsx */
+export { default } from "@/app/layouts/simple-layout"
+
+/* app/resources/layout.tsx */
+export { default } from "@/app/layouts/simple-layout"
+\`\`\`

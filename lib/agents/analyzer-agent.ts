@@ -1,56 +1,49 @@
-import type { Agent, AgentTask } from "./agent-types"
+import type { AgentTask, AgentResult, SecurityThreat } from "./agent-types"
+import { createStubAgent, completeTaskImmediately } from "./_stub-utils"
 
-export const analyzerAgent: Agent = {
-  id: "analyzer",
-  name: "Analyzer Agent",
-  description: "Performs in-depth analysis of exploits and vulnerabilities",
-  status: "idle",
-  type: "analyzer",
-  capabilities: [
-    "Technical analysis",
-    "Vulnerability assessment",
-    "Attack vector identification",
-    "Impact evaluation",
-    "Code review",
-  ],
-}
+export class AnalyzerAgent {
+  async processTask(task: AgentTask): Promise<AgentResult> {
+    try {
+      const analysis = await this.analyzeData(task.name)
 
-export async function runAnalyzerAgent(task: AgentTask): Promise<AgentTask> {
-  // In a real implementation, this would perform detailed technical analysis
-  // of identified security threats
-
-  // Simulate processing time
-  await new Promise((resolve) => setTimeout(resolve, 4000))
-
-  return {
-    ...task,
-    status: "completed",
-    completedAt: new Date(),
-    result: {
-      analysis: {
-        vulnerability: "Reentrancy Attack",
-        affectedComponents: ["LendingPool.sol", "FlashLoan.sol"],
-        severity: "Critical",
-        exploitability: "High",
-        technicalDetails: `
-The vulnerability exists in the LendingPool contract where the _withdraw function
-calls an external contract before updating the user's balance:
-
-\`\`\`solidity
-function _withdraw(address token, uint256 amount) internal {
-    // Send tokens to user
-    IERC20(token).transfer(msg.sender, amount);
-    
-    // Update user balance - TOO LATE!
-    userBalances[msg.sender][token] -= amount;
-}
-\`\`\`
-
-This allows an attacker to recursively call back into the _withdraw function
-before the balance is updated, draining the contract.
-        `,
-        potentialImpact: "Complete drainage of protocol funds if exploited.",
-      },
-    },
+      return {
+        taskId: task.id,
+        agentId: "analyzer-agent",
+        output: analysis,
+        completedAt: new Date(),
+        success: true,
+      }
+    } catch (error) {
+      return {
+        taskId: task.id,
+        agentId: "analyzer-agent",
+        output: null,
+        completedAt: new Date(),
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      }
+    }
   }
+
+  private async analyzeData(data: string): Promise<SecurityThreat[]> {
+    // Placeholder implementation
+    return [
+      {
+        id: "1",
+        title: `Analysis of ${data}`,
+        severity: "medium",
+        category: "Smart Contract",
+        source: "Analyzer Agent",
+        date: new Date().toISOString().split("T")[0],
+        status: "new",
+        description: `Automated analysis results for ${data}`,
+      },
+    ]
+  }
+}
+
+export const analyzerAgent = createStubAgent("analyzer", "Analyzer Agent", "Performs in-depth exploit analysis")
+
+export async function runAnalyzerAgent(task: AgentTask) {
+  return completeTaskImmediately(task)
 }

@@ -1,133 +1,83 @@
-import { NextResponse } from "next/server"
-import type { SecurityReport } from "@/lib/agents"
+import type { NextRequest } from "next/server"
 
-// Mock database for reports
+interface SecurityReport {
+  id: string
+  title: string
+  description: string
+  date: string
+  type: string
+  url: string
+  status: "draft" | "published" | "archived"
+}
+
 const mockReports: SecurityReport[] = [
   {
     id: "1",
-    title: "Flash Loan Attack Analysis",
-    description: "Detailed breakdown of the recent flash loan exploit affecting multiple DeFi protocols.",
-    createdAt: new Date("2023-04-10"),
-    type: "incident",
-    threats: ["2"],
-    content: `
-# Flash Loan Attack Analysis
-
-## Overview
-On April 2, 2023, a sophisticated flash loan attack was executed against multiple DeFi protocols, resulting in approximately $3 million in losses.
-
-## Technical Details
-The attacker used a flash loan from Aave to manipulate price oracles used by several DEXs. By temporarily distorting asset prices, the attacker was able to execute profitable arbitrage trades at the expense of liquidity providers.
-
-## Affected Protocols
-- UniswapV2
-- SushiSwap
-- PancakeSwap
-
-## Mitigation Strategies
-1. Implement time-weighted average price (TWAP) oracles
-2. Add circuit breakers for unusual price movements
-3. Limit the impact of flash loans on price calculations
-
-## Recommendations
-All DeFi protocols should review their price oracle implementations and consider implementing the mitigation strategies outlined above.
-    `,
-    publishedUrl: "https://example.com/reports/flash-loan-attack",
+    title: "Weekly Security Summary - Week 3",
+    description: "Comprehensive overview of security incidents and vulnerabilities discovered this week",
+    date: "2024-01-15",
+    type: "weekly",
+    url: "/reports/weekly-3-2024",
+    status: "published",
   },
   {
     id: "2",
-    title: "Reentrancy Vulnerability Report",
-    description: "Analysis of reentrancy vulnerabilities found in popular smart contracts.",
-    createdAt: new Date("2023-04-08"),
-    type: "vulnerability",
-    threats: ["1"],
-    content: `
-# Reentrancy Vulnerability Report
-
-## Overview
-A critical reentrancy vulnerability has been identified in several DeFi lending protocols that could allow attackers to drain funds.
-
-## Technical Details
-The vulnerability exists in the withdrawal functions where external calls are made before state updates, violating the checks-effects-interactions pattern.
-
-## Vulnerable Code Pattern
-\`\`\`solidity
-function withdraw(uint amount) external {
-    require(balances[msg.sender] >= amount);
-    
-    // VULNERABLE: External call before state update
-    (bool success, ) = msg.sender.call{value: amount}("");
-    require(success, "Transfer failed");
-    
-    // TOO LATE: State updated after external call
-    balances[msg.sender] -= amount;
-}
-\`\`\`
-
-## Secure Code Pattern
-\`\`\`solidity
-function withdraw(uint amount) external {
-    require(balances[msg.sender] >= amount);
-    
-    // SECURE: State updated before external call
-    balances[msg.sender] -= amount;
-    
-    // External call after state update
-    (bool success, ) = msg.sender.call{value: amount}("");
-    require(success, "Transfer failed");
-}
-\`\`\`
-
-## Affected Protocols
-- LendingProtocolA
-- DeFiPlatformB
-- YieldFarmC
-
-## Recommendations
-1. Implement the checks-effects-interactions pattern
-2. Use reentrancy guards
-3. Consider using OpenZeppelin's ReentrancyGuard
-    `,
-    publishedUrl: "https://example.com/reports/reentrancy-vulnerability",
+    title: "Flash Loan Attack Analysis",
+    description: "Detailed analysis of recent flash loan exploits and mitigation strategies",
+    date: "2024-01-12",
+    type: "incident",
+    url: "/reports/flash-loan-analysis",
+    status: "published",
   },
 ]
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    // In a real implementation, this would fetch from a database
-    return NextResponse.json({ reports: mockReports })
+    const { searchParams } = new URL(request.url)
+    const type = searchParams.get("type")
+    const status = searchParams.get("status")
+
+    let filteredReports = mockReports
+
+    if (type) {
+      filteredReports = filteredReports.filter((report) => report.type === type)
+    }
+
+    if (status) {
+      filteredReports = filteredReports.filter((report) => report.status === status)
+    }
+
+    return Response.json({
+      success: true,
+      data: filteredReports,
+      total: filteredReports.length,
+    })
   } catch (error) {
-    console.error("Error fetching reports:", error)
-    return NextResponse.json({ error: "Failed to fetch reports" }, { status: 500 })
+    return Response.json({ success: false, error: "Failed to fetch reports" }, { status: 500 })
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { title, description, type, threats, content } = body
+    const { title, description, type } = body
 
-    if (!title || !description || !type || !content) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
-    }
-
-    // Create a new report
     const newReport: SecurityReport = {
-      id: crypto.randomUUID(),
+      id: `report-${Date.now()}`,
       title,
       description,
-      createdAt: new Date(),
-      type: type as "incident" | "vulnerability" | "summary" | "analysis" | "guide" | "research",
-      threats: threats || [],
-      content,
+      date: new Date().toISOString().split("T")[0],
+      type,
+      url: `/reports/${title.toLowerCase().replace(/\s+/g, "-")}`,
+      status: "draft",
     }
 
-    // In a real implementation, this would save to a database
-    // For now, we'll just return the new report
-
-    return NextResponse.json({ report: newReport })
+    return Response.json({
+      success: true,
+      data: newReport,
+      message: "Report created successfully",
+    })
   } catch (error) {
-    console.error("Error creating report:", error)
-    return NextResponse.json({ error: "Failed to create report" }, { status: 500 })
+    return Response.json({ success: false, error: "Failed to create report" }, { status: 500 })
   }
 }
